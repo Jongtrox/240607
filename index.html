@@ -46,11 +46,10 @@
                     this.shapes.push({
                         x: x,
                         y: y,
-                        angle: Math.random() * Math.PI * 2 // 초기 각도
+                        angle: Math.random() * Math.PI * 2, // 초기 각도
+                        rotationSpeed: Math.random() * 0.005 // 회전 속도
                     });
                 }
-
-                this.rotationSpeed = 0.001; // 회전 속도
             }
 
             draw() {
@@ -77,7 +76,7 @@
 
             update() {
                 this.shapes.forEach(shape => {
-                    shape.angle += this.rotationSpeed;
+                    shape.angle += shape.rotationSpeed; // 회전 속도 적용
                 });
 
                 this.draw();
