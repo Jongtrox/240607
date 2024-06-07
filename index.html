@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>은하 형태의 패턴 애니메이션</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            display: block;
+            margin: 0 auto;
+            background-color: white; /* 배경을 흰색으로 설정 */
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: black; /* body 배경을 검정색으로 설정 */
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        class Shape {
+            constructor() {
+                this.shapes = [];
+                this.numShapes = 200; // 도형의 갯수
+                this.shapeSize = Math.min(canvas.width, canvas.height) * 0.01; // 도형의 크기
+                this.radiusX = canvas.width * 0.35; // 타원의 반지름 X
+                this.radiusY = canvas.height * 0.2; // 타원의 반지름 Y
+                this.centerX = canvas.width / 2; // 타원의 중심 X
+                this.centerY = canvas.height / 2; // 타원의 중심 Y
+                this.angleOffset = (Math.PI * 2) / this.numShapes; // 도형 사이의 각도 차이
+
+                for (let i = 0; i < this.numShapes; i++) {
+                    const angle = i * this.angleOffset;
+                    const x = this.centerX + Math.cos(angle) * this.radiusX;
+                    const y = this.centerY + Math.sin(angle) * this.radiusY;
+                    this.shapes.push({
+                        x: x,
+                        y: y,
+                        angle: Math.random() * Math.PI * 2 // 초기 각도
+                    });
+                }
+
+                this.rotationSpeed = 0.001; // 회전 속도
+            }
+
+            draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.strokeStyle = 'black'; // 검정색 선으로 그림
+                ctx.lineWidth = 1;
+
+                this.shapes.forEach(shape => {
+                    ctx.beginPath();
+                    for (let i = 0; i < 6; i++) {
+                        const angle = shape.angle + (i / 6) * Math.PI * 2;
+                        const x = shape.x + Math.cos(angle) * this.shapeSize;
+                        const y = shape.y + Math.sin(angle) * this.shapeSize;
+                        if (i === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                    }
+                    ctx.closePath();
+                    ctx.stroke();
+                });
+            }
+
+            update() {
+                this.shapes.forEach(shape => {
+                    shape.angle += this.rotationSpeed;
+                });
+
+                this.draw();
+            }
+        }
+
+        const shape = new Shape();
+
+        function animate() {
+            shape.update();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
