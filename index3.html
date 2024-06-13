@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxy Animation with Pentagon</title>
+    <style>
+        /* 페이지 전체의 기본 설정을 정의 */
+        body, html {
+            margin: 0; /* 모든 기본 여백 제거 */
+            padding: 0; /* 모든 기본 패딩 제거 */
+            overflow: hidden; /* 스크롤 바를 숨김 */
+            height: 100%; /* 페이지 높이를 100%로 설정 */
+            width: 100%; /* 페이지 너비를 100%로 설정 */
+            background: black; /* 배경색을 검정으로 설정 */
+            display: flex; /* Flexbox를 사용하여 배치 */
+            justify-content: center; /* 수평 방향으로 가운데 정렬 */
+            align-items: center; /* 수직 방향으로 가운데 정렬 */
+        }
+
+        /* 선의 스타일을 정의 */
+        .line {
+            position: absolute; /* 위치를 절대적으로 설정 */
+            background-color: white; /* 선의 색상을 흰색으로 설정 */
+            height: 1px; /* 선의 두께를 1px로 설정 */
+            transform-origin: 0 0; /* 변환 기준점을 선의 시작점으로 설정 */
+        }
+    </style>
+</head>
+<body>
+    <!-- 도형을 포함할 컨테이너 -->
+    <div id="shapes-container"></div>
+
+    <script>
+        const container = document.getElementById('shapes-container');
+        const numShapes = Math.floor(200 * 0.7); // 도형의 갯수를 70%로 줄임
+        const shapes = [];
+        const radiusX = window.innerWidth * 0.35; // 타원의 반지름 X
+        const radiusY = window.innerHeight * 0.2; // 타원의 반지름 Y
+        const centerX = window.innerWidth / 2; // 타원의 중심 X
+        const centerY = window.innerHeight / 2; // 타원의 중심 Y
+        const angleOffset = (Math.PI * 2) / numShapes; // 도형 사이의 각도 차이
+
+        // 오각형의 각 점에 대한 각도를 미리 계산
+        const pentagonPoints = Array.from({ length: 5 }, (_, i) => (i * (2 * Math.PI) / 5) - Math.PI / 2);
+
+        // 도형들을 생성하여 shapes 배열에 저장
+        for (let i = 0; i < numShapes; i++) {
+            const shapeGroup = {
+                points: [], // 각 점을 저장할 배열
+                lines: [] // 각 선을 저장할 배열
+            };
+
+            // 오각형을 이루는 각 점과 선을 생성
+            for (let j = 0; j < 5; j++) {
+                const line = document.createElement('div');
+                line.classList.add('line'); // 선의 스타일을 추가
+                container.appendChild(line);
+                shapeGroup.lines.push(line); // 선을 shapeGroup에 추가
+            }
+
+            const initialAngle = i * angleOffset; // 초기 각도 설정
+            shapes.push({
+                elements: shapeGroup,
+                angle: initialAngle,
+                rotationSpeed: Math.random() * 0.01, // 회전 속도
+                orbitSpeed: (Math.random() - 0.5) * 0.002 // 공전 속도
+            });
+        }
+
+        // 도형들을 애니메이션으로 움직이게 하는 함수
+        function animateShapes() {
+            shapes.forEach(shape => {
+                shape.angle += shape.rotationSpeed; // 각도 업데이트
+                const angle = shape.angle;
+
+                const points = pentagonPoints.map(pointAngle => {
+                    // 오각형의 각 점의 위치를 계산 (90% 크기로 줄임)
+                    const x = centerX + Math.cos(angle) * radiusX + Math.cos(pointAngle) * 20 * 0.9;
+                    const y = centerY + Math.sin(angle) * radiusY + Math.sin(pointAngle) * 20 * 0.9;
+                    return { x, y };
+                });
+
+                // 각 점을 연결하여 선을 그림
+                shape.elements.lines.forEach((line, index) => {
+                    const startPoint = points[index];
+                    const endPoint = points[(index + 1) % points.length];
+                    const length = Math.hypot(endPoint.x - startPoint.x, endPoint.y - startPoint.y); // 선의 길이를 계산
+                    const angle = Math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x) * 180 / Math.PI; // 선의 각도 계산
+                    line.style.width = `${length}px`;
+                    line.style.left = `${startPoint.x}px`;
+                    line.style.top = `${startPoint.y}px`;
+                    line.style.transform = `rotate(${angle}deg)`; // 선을 회전시켜 각도 맞춤
+                });
+            });
+
+            requestAnimationFrame(animateShapes); // 다음 프레임을 요청하여 애니메이션 반복
+        }
+
+        animateShapes(); // 애니메이션 시작
+    </script>
+</body>
+</html>
