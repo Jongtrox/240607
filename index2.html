@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxy Animation with Pentagon</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100%;
+            width: 100%;
+            background: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .shape {
+            position: absolute;
+            width: 2px; /* 점의 크기 */
+            height: 2px;
+            background-color: white; /* 점의 색상 */
+        }
+    </style>
+</head>
+<body>
+    <div id="shapes-container"></div>
+
+    <script>
+        const container = document.getElementById('shapes-container');
+        const numShapes = 200; // 도형의 갯수
+        const shapes = [];
+        const radiusX = window.innerWidth * 0.35; // 타원의 반지름 X
+        const radiusY = window.innerHeight * 0.2; // 타원의 반지름 Y
+        const centerX = window.innerWidth / 2; // 타원의 중심 X
+        const centerY = window.innerHeight / 2; // 타원의 중심 Y
+        const angleOffset = (Math.PI * 2) / numShapes; // 도형 사이의 각도 차이
+
+        // 오각형의 각 점에 대한 각도를 미리 계산
+        const pentagonPoints = Array.from({ length: 5 }, (_, i) => (i * (2 * Math.PI) / 5) - Math.PI / 2);
+
+        for (let i = 0; i < numShapes; i++) {
+            const shapeGroup = [];
+            pentagonPoints.forEach(angle => {
+                const shape = document.createElement('div');
+                shape.classList.add('shape');
+                container.appendChild(shape);
+                shapeGroup.push(shape);
+            });
+            const initialAngle = i * angleOffset;
+            shapes.push({
+                elements: shapeGroup,
+                angle: initialAngle,
+                rotationSpeed: Math.random() * 0.01,
+                orbitSpeed: (Math.random() - 0.5) * 0.002
+            });
+        }
+
+        function animateShapes() {
+            shapes.forEach(shape => {
+                shape.angle += shape.rotationSpeed;
+                const angle = shape.angle;
+
+                shape.elements.forEach((element, index) => {
+                    const pointAngle = pentagonPoints[index];
+                    const x = centerX + Math.cos(angle) * radiusX + Math.cos(pointAngle) * 20;
+                    const y = centerY + Math.sin(angle) * radiusY + Math.sin(pointAngle) * 20;
+                    element.style.left = `${x}px`;
+                    element.style.top = `${y}px`;
+                });
+            });
+
+            requestAnimationFrame(animateShapes);
+        }
+
+        animateShapes();
+    </script>
+</body>
+</html>
